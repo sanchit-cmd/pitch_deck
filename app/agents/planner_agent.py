@@ -1,10 +1,13 @@
 from langchain.agents import create_agent
+from dotenv import load_dotenv
 from pprint import pprint
 
 from app.state import DeckState
 from app.models.slide_plan_model import SlidePlan
 from app.prompts.planner_prompt import planner_agent_system_prompt
 
+
+load_dotenv()
 
 def planner_agent(state: DeckState) -> DeckState:
     agent = create_agent(

@@ -1,13 +1,17 @@
 from concurrent.futures import ThreadPoolExecutor
+from dotenv import load_dotenv
 from pprint import pprint
 from pathlib import Path
 import base64
 import requests
 import json
+import os
 
 from app.state import DeckState
 from app.models.slide_prompt_model import SlidePrompt
 from app.models.logo_model import Logo
+
+load_dotenv()
 
 
 def image_generator_agent(state: DeckState) -> DeckState:
@@ -21,7 +25,7 @@ def image_generator_agent(state: DeckState) -> DeckState:
 
     # Use the Nano Banana model ID
     model_id = "gemini-2.5-flash-image"
-    api_key = "AIzaSyCyo0qk680cp_XsheETMBIMTQCuMMO1Q6Q"
+    api_key = os.getenv("GOOGLE_API_KEY")
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_id}:generateContent?key={api_key}"
 
     def generate_single_image(
@@ -96,7 +100,7 @@ def image_generator_agent(state: DeckState) -> DeckState:
     with ThreadPoolExecutor(max_workers=5) as executor:
         futures = [
             executor.submit(generate_single_image, sp, state.get("logo"))
-            for sp in state["slide_prompt"]
+            for sp in state["slide_prompt"][:1]
         ]
         state["slide_images"] = [f.result() for f in futures]
 

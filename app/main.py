@@ -11,7 +11,7 @@ from app.workflow import graph
 app = FastAPI()
 
 
-@app.get("/")
+@app.post("/")
 def read_root():
     test_input: InputFormat = {
         "company_name": "HackHound PVT LTD",
@@ -47,4 +47,4 @@ def read_root():
     response = graph.invoke(test_deck, config=config)
 
     # pprint(response)
-    return {"response": response[""]}
+    return {"response": response}
