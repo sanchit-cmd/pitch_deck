@@ -1,25 +1,7 @@
-from app.schemas.planner import PlannerPromptSchema
+from app.models.input_model import InputFormat
 
 
-def generate_planner_prompt(prompt_input: PlannerPromptSchema) -> str:
-    return f"""
-Company Name: {prompt_input.company_name}
-Tagline: {prompt_input.tagline}
-Problem: {prompt_input.problem}
-Solution: {prompt_input.solution}
-Target Customer: {prompt_input.target_customer}
-Industry: {prompt_input.industry} 
-Business Model: {prompt_input.business_model}
-Stage: {prompt_input.stage}
-Goal of Deck: {prompt_input.deck_goal}
-Competitors: {prompt_input.competitors}
-Unique Advantage: {prompt_input.unique_advantage}
-Preferred Tone: {prompt_input.tone}
-"""
-
-
-def generate_planner_system_prompt() -> str:
-    return """
+planner_agent_system_prompt = """
 You are an elite startup pitch deck strategist.
 
 Your task is to design the CONTENT STRUCTURE and VISUAL DIRECTION of a professional investor pitch deck.
@@ -102,16 +84,57 @@ Visual: Highlighted strength, focus, leverage
 Slide 10 — ASK / FUTURE
 Purpose: Forward momentum
 Include:
-- What is needed (funding, growth, partnerships)
+- What is needed (growth, partnerships)
 - Vision outcome
+- Do not mention about funds
 Visual: Forward path, ambition, horizon
 
 OUTPUT FORMAT RULE:
 Each slide object must contain:
 - slide_number
-- slide_type
+- slide_type (always in uppercase)
 - title
 - content_bullets (array)
 - visual_description
 - layout_type
+
+Return ONLY valid JSON that strictly matches the schema.
+Do not include explanations, markdown, or extra text.
+Do not include comments.
+"""
+
+
+def generate_planner_agent_prompt(
+    input_state: InputFormat, logo_base64: str = None
+) -> str:
+    logo_instruction = ""
+    if logo_base64:
+        logo_instruction = f"""
+LOGO PROVIDED:
+A base64 encoded logo image is provided. Analyze this logo to determine:
+- Primary colors in the logo
+- Visual style (modern, minimal, bold, playful, corporate, etc.)
+- Design language and aesthetic
+- Mood and emotion conveyed
+- Brand personality
+
+Use these logo insights to inform your color_palette, visual_mood, and overall_style recommendations.
+Logo (base64): {logo_base64}
+"""
+
+    return f"""
+Company Name: {input_state["company_name"]}
+Tagline: {input_state["tagline"]}
+Problem: {input_state["problem"]}
+Solution: {input_state["solution"]}
+Target Customer: {input_state["target_customer"]}
+Industry: {input_state["industry"]}
+Business Model: {input_state["business_model"]}
+Stage: {input_state["stage"]}
+Goal of Deck: {input_state["goal_of_deck"]}
+Competitors: {input_state["competitors"]}
+Unique Advantage: {input_state["unique_advantage"]}
+Preferred Tone: {input_state["prefered_tone"]}
+
+{logo_instruction}
 """

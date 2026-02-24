@@ -1,20 +1,17 @@
-from typing import TypedDict, List, Dict, Optional
+from typing import TypedDict, Optional, List
 
-
-class Slide(TypedDict):
-    title: str
-    content: str
-    notes: Optional[str]
-    status: str  # success | failed
+from app.models.logo_model import Logo
+from app.models.slide_image_model import SlideImage
+from app.models.slide_plan_model import SlidePlan
+from app.models.slide_prompt_model import SlidePrompt
 
 
 class DeckState(TypedDict):
-    idea: str
-    audience: str
-    goal: str
-
-    slide_outline: List[str]
-    slides: Dict[str, Slide]
-
-    regenerate_slides: List[str]  # slide titles to regenerate
-    final_deck: Optional[List[Slide]]
+    raw_prompt: str
+    logo: Optional[Logo]
+    slide_plan: Optional[SlidePlan]
+    slide_prompt: Optional[List[SlidePrompt]]
+    slide_images: Optional[List[SlideImage]]
+    pdf_path: Optional[str]
+    current_slide: Optional[int]
+    errors: Optional[List[str]]
