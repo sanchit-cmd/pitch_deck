@@ -71,7 +71,7 @@ def image_generator_agent(state: DeckState) -> DeckState:
 
             response_json = response.json()
             pprint("================= IMAGE RESPONSE ==========================")
-            pprint(response_json)
+            pprint(response)
 
             # Check for empty candidates (often safety blocks)
             if not response_json.get("candidates"):
