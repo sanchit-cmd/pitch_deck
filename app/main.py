@@ -3,6 +3,7 @@ from typing import Dict, Any, Optional, Literal
 from fastapi import FastAPI, BackgroundTasks, HTTPException, Request, Form
 from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import os
 
@@ -13,6 +14,15 @@ from app.state import DeckState
 from app.workflow import graph
 
 app = FastAPI()
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins (change to specific domains in production if needed)
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods, including GET, POST, OPTIONS, etc.
+    allow_headers=["*"],  # Allows all headers
+)
 
 # Setup Jinja2 templates directory
 templates_dir = os.path.join(os.path.dirname(__file__), "templates")
