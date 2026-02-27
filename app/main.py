@@ -2,6 +2,7 @@ import base64
 import uuid
 from typing import Dict, Any, Optional, Literal
 from fastapi import FastAPI, BackgroundTasks, HTTPException
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from app.models.input_model import InputFormat
@@ -75,6 +76,10 @@ def process_pitch_deck(job_id: str, request: JobRequest):
         jobs[job_id]["status"] = "completed"
         jobs[job_id]["result"] = response
         
+        # Store PDF path explicitly for easy retrieval
+        if "pdf_path" in response:
+            jobs[job_id]["pdf_path"] = response["pdf_path"]
+        
     except Exception as e:
         jobs[job_id]["status"] = "failed"
         jobs[job_id]["error"] = str(e)
@@ -92,4 +97,36 @@ def create_job(request: JobRequest, background_tasks: BackgroundTasks):
 def get_job_status(job_id: str):
     if job_id not in jobs:
         raise HTTPException(status_code=404, detail="Job not found")
-    return jobs[job_id]
+    
+    # We strip out the raw result and pdf path from the status API to keep it clean, 
+    # but include a download URL if ready
+    response = {"status": jobs[job_id]["status"]}
+    
+    if jobs[job_id]["status"] == "failed":
+        response["error"] = jobs[job_id].get("error")
+        
+    if jobs[job_id]["status"] == "completed":
+        response["download_url"] = f"/api/v1/jobs/{job_id}/download"
+        
+    return response
+
+
+@app.get("/api/v1/jobs/{job_id}/download")
+def download_pdf(job_id: str):
+    if job_id not in jobs:
+        raise HTTPException(status_code=404, detail="Job not found")
+        
+    job_data = jobs[job_id]
+    
+    if job_data["status"] != "completed":
+        raise HTTPException(status_code=400, detail="Job is not completed yet")
+        
+    pdf_path = job_data.get("pdf_path")
+    if not pdf_path:
+         raise HTTPException(status_code=404, detail="PDF generation failed or missing")
+         
+    return FileResponse(
+        path=pdf_path, 
+        filename=f"pitch_deck_{job_id}.pdf", 
+        media_type="application/pdf"
+    )
