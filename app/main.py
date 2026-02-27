@@ -1,9 +1,10 @@
-import base64
 import uuid
 from typing import Dict, Any, Optional, Literal
-from fastapi import FastAPI, BackgroundTasks, HTTPException
-from fastapi.responses import FileResponse
+from fastapi import FastAPI, BackgroundTasks, HTTPException, Request, Form
+from fastapi.responses import FileResponse, RedirectResponse
+from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
+import os
 
 from app.models.input_model import InputFormat
 from app.prompts.planner_prompt import generate_planner_agent_prompt
@@ -13,6 +14,9 @@ from app.workflow import graph
 
 app = FastAPI()
 
+# Setup Jinja2 templates directory
+templates_dir = os.path.join(os.path.dirname(__file__), "templates")
+templates = Jinja2Templates(directory=templates_dir)
 
 class JobRequest(BaseModel):
     company_name: str
@@ -128,5 +132,72 @@ def download_pdf(job_id: str):
     return FileResponse(
         path=pdf_path, 
         filename=f"pitch_deck_{job_id}.pdf", 
-        media_type="application/pdf"
+        media_type="application/pdf",
+        content_disposition_type="attachment"
     )
+
+
+# --- HTML UI Routes ---
+
+@app.get("/")
+async def ui_home(request: Request):
+    """Renders the HTML form for starting a pitch deck job."""
+    return templates.TemplateResponse("index.html", {"request": request})
+
+
+@app.post("/submit")
+async def ui_submit(
+    request: Request,
+    background_tasks: BackgroundTasks,
+    company_name: str = Form(...),
+    tagline: str = Form(...),
+    problem: str = Form(...),
+    solution: str = Form(...),
+    target_customer: str = Form(...),
+    industry: str = Form(...),
+    business_model: str = Form(...),
+    stage: Literal["MVP", "IDEA", "SALES"] = Form(...),
+    goal_of_deck: Literal["SALES", "COLLEGE_PROJECT", "INVESTOR"] = Form(...),
+    competitors: str = Form(...),
+    unique_advantage: str = Form(...),
+    prefered_tone: Literal["MINIMAL", "BOLD", "CORPORATE", "FUN"] = Form(...)
+):
+    """Receives the form, creates a job, and redirects to the status page."""
+    job_req = JobRequest(
+        company_name=company_name,
+        tagline=tagline,
+        problem=problem,
+        solution=solution,
+        target_customer=target_customer,
+        industry=industry,
+        business_model=business_model,
+        stage=stage,
+        goal_of_deck=goal_of_deck,
+        competitors=competitors,
+        unique_advantage=unique_advantage,
+        prefered_tone=prefered_tone,
+        logo_base64=None,
+        logo_mime_type=None
+    )
+    
+    job_id = str(uuid.uuid4())
+    jobs[job_id] = {"status": "pending"}
+    background_tasks.add_task(process_pitch_deck, job_id, job_req)
+    
+    # Redirect to the status view page using a 303 See Other
+    return RedirectResponse(url=f"/status/{job_id}", status_code=303)
+
+
+@app.get("/status/{job_id}")
+async def ui_status(request: Request, job_id: str):
+    """Renders the status polling page."""
+    # We will let the template load first, then ping the API, avoiding erroring here if possible
+    # But checking if exists is alright natively
+    if job_id not in jobs:
+        raise HTTPException(status_code=404, detail="Job not found")
+        
+    return templates.TemplateResponse("status.html", {
+        "request": request, 
+        "job_id": job_id
+    })
+
