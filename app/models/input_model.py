@@ -7,6 +7,7 @@ class InputFormat(TypedDict):
     problem: str
     solution: str
     target_customer: str
+    industry: str
     business_model: str
     stage: Literal["MVP", "IDEA", "SALES"]
     goal_of_deck: Literal["SALES", "COLLEGE_PROJECT", "INVESTOR"]

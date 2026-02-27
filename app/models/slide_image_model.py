@@ -4,5 +4,5 @@ from typing import TypedDict
 class SlideImage(TypedDict):
     """Represents the image generated for a specific slide, as output by the image generation agent."""
 
-    slide_numer: int
+    slide_number: int
     image_path: str

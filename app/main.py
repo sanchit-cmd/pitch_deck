@@ -1,6 +1,8 @@
 import base64
-from fastapi import FastAPI
-from pprint import pprint
+import uuid
+from typing import Dict, Any, Optional, Literal
+from fastapi import FastAPI, BackgroundTasks, HTTPException
+from pydantic import BaseModel
 
 from app.models.input_model import InputFormat
 from app.prompts.planner_prompt import generate_planner_agent_prompt
@@ -11,40 +13,83 @@ from app.workflow import graph
 app = FastAPI()
 
 
-@app.post("/")
-def read_root():
-    test_input: InputFormat = {
-        "company_name": "HackHound PVT LTD",
-        "tagline": "Crafting the Future of E-commerce",
-        "problem": "Small businesses struggle to create engaging online stores that convert visitors into customers.",
-        "solution": "HackHound offers an AI-powered platform that designs and optimizes e-commercestores for small businesses, increasing conversion rates and sales.",
-        "target_customer": "Small business owners and entrepreneurs in the e-commerce space.",
-        "industry": "E-commerce, SaaS, AI",
-        "business_model": "Subscription-based with tiered pricing based on features and store size.",
-        "stage": "MVP",
-        "competitors": "Shopify, Wix, Squarespace",
-        "unique_advantage": "AI-driven design and optimization specifically tailored for small businesses, with a focus on conversion rate improvement.",
-        "prefered_tone": "BOLD",
-        "goal_of_deck": "INVESTOR",
-    }
+class JobRequest(BaseModel):
+    company_name: str
+    tagline: str
+    problem: str
+    solution: str
+    target_customer: str
+    industry: str
+    business_model: str
+    stage: Literal["MVP", "IDEA", "SALES"]
+    goal_of_deck: Literal["SALES", "COLLEGE_PROJECT", "INVESTOR"]
+    competitors: str
+    unique_advantage: str
+    prefered_tone: Literal["MINIMAL", "BOLD", "CORPORATE", "FUN"]
+    logo_base64: Optional[str] = None  # Expected to be pure base64 string
+    logo_mime_type: Optional[str] = "image/png"
 
-    logo_data = None
-    with open("file.jpg", "rb") as f:
-        logo_data = f.read()
-        logo_base64 = base64.b64encode(logo_data).decode("utf-8")
-        logo_data = {"data": logo_base64, "mime_type": "image/jpg"}
 
-    raw_input = generate_planner_agent_prompt(test_input, logo_base64=logo_data["data"])
+# In-memory storage for jobs (for prototyping)
+jobs: Dict[str, Dict[str, Any]] = {}
 
-    test_deck: DeckState = {
-        "raw_prompt": raw_input,
-    }
 
-    if logo_data:
-        test_deck["logo"] = logo_data
+def process_pitch_deck(job_id: str, request: JobRequest):
+    jobs[job_id]["status"] = "processing"
+    
+    try:
+        test_input: InputFormat = {
+            "company_name": request.company_name,
+            "tagline": request.tagline,
+            "problem": request.problem,
+            "solution": request.solution,
+            "target_customer": request.target_customer,
+            "industry": request.industry,
+            "business_model": request.business_model,
+            "stage": request.stage,
+            "competitors": request.competitors,
+            "unique_advantage": request.unique_advantage,
+            "prefered_tone": request.prefered_tone,
+            "goal_of_deck": request.goal_of_deck,
+        }
 
-    config = {"configurable": {"thread_id": "1"}}
-    response = graph.invoke(test_deck, config=config)
+        logo_data = None
+        if request.logo_base64:
+            logo_data = {"data": request.logo_base64, "mime_type": request.logo_mime_type}
 
-    # pprint(response)
-    return {"response": response}
+        raw_input = generate_planner_agent_prompt(
+            test_input, 
+            logo_base64=logo_data["data"] if logo_data else None
+        )
+
+        test_deck: DeckState = {
+            "raw_prompt": raw_input,
+        }
+
+        if logo_data:
+            test_deck["logo"] = logo_data
+
+        config = {"configurable": {"thread_id": job_id}}
+        response = graph.invoke(test_deck, config=config)
+        
+        jobs[job_id]["status"] = "completed"
+        jobs[job_id]["result"] = response
+        
+    except Exception as e:
+        jobs[job_id]["status"] = "failed"
+        jobs[job_id]["error"] = str(e)
+
+
+@app.post("/api/v1/jobs")
+def create_job(request: JobRequest, background_tasks: BackgroundTasks):
+    job_id = str(uuid.uuid4())
+    jobs[job_id] = {"status": "pending"}
+    background_tasks.add_task(process_pitch_deck, job_id, request)
+    return {"job_id": job_id}
+
+
+@app.get("/api/v1/jobs/{job_id}")
+def get_job_status(job_id: str):
+    if job_id not in jobs:
+        raise HTTPException(status_code=404, detail="Job not found")
+    return jobs[job_id]

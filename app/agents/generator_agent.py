@@ -71,7 +71,7 @@ def image_generator_agent(state: DeckState) -> DeckState:
 
             response_json = response.json()
             pprint("================= IMAGE RESPONSE ==========================")
-            # pprint(response_json)
+            pprint(response_json)
 
             # Check for empty candidates (often safety blocks)
             if not response_json.get("candidates"):
@@ -96,11 +96,11 @@ def image_generator_agent(state: DeckState) -> DeckState:
             print(f"Exception for slide {slide_number}: {str(e)}")
             return {"slide_number": slide_number, "image_path": None}
 
-    # Parallel execution (currently limited to index 0 per your snippet)
-    with ThreadPoolExecutor(max_workers=5) as executor:
+    # Parallel execution for all slides
+    with ThreadPoolExecutor(max_workers=10) as executor:
         futures = [
             executor.submit(generate_single_image, sp, state.get("logo"))
-            for sp in state["slide_prompt"][:1]
+            for sp in state["slide_prompt"]
         ]
         state["slide_images"] = [f.result() for f in futures]
 

@@ -6,8 +6,10 @@ dist/
 wheels/
 *.egg-info
 slides_images/
+sample_slides/
 
 # Virtual environments
 .venv
 .env
 .vscode
+.langgraph_api
