@@ -1,7 +1,0 @@
-{
-  "$schema": "https://langgra.ph/schema.json",
-  "dependencies": ["."],
-  "graphs": {
-    "chat": "app.workflow:graph"
-  }
-}

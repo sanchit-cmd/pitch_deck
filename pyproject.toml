@@ -8,7 +8,6 @@ dependencies = [
     "fastapi[standard]>=0.128.4",
     "langchain[google-genai]>=1.2.10",
     "langgraph>=1.0.8",
-    "langgraph-cli[inmem]>=0.4.12",
     "pillow>=12.1.1",
     "python-dotenv>=1.2.1",
 ]
