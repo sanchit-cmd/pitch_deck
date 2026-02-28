@@ -15,3 +15,4 @@ class DeckState(TypedDict):
     pdf_path: Optional[str]
     current_slide: Optional[int]
     errors: Optional[List[str]]
+    job_id: Optional[str]

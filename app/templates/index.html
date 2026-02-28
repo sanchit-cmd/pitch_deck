@@ -4,7 +4,7 @@
 <div class="card">
     <h2 style="margin-bottom: 2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">Create Your Pitch Deck</h2>
     
-    <form action="/submit" method="POST" id="pitchForm">
+    <form action="/submit" method="POST" id="pitchForm" enctype="multipart/form-data">
         <div class="grid-2">
             <div class="form-group">
                 <label for="company_name">Company Name *</label>
@@ -80,6 +80,12 @@
                     <option value="FUN">Fun & Creative</option>
                 </select>
             </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 1.5rem;">
+            <label for="logo">Company Logo (Optional)</label>
+            <input type="file" id="logo" name="logo" accept="image/*" style="padding: 0.5rem 0;">
+            <div class="helper-text">Upload a logo to include it in the pitch deck.</div>
         </div>
 
         <div style="margin-top: 3rem;">

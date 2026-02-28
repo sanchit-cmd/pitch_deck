@@ -10,6 +10,7 @@ dependencies = [
     "langchain[google-genai]>=1.2.10",
     "langgraph>=1.0.8",
     "pillow>=12.1.1",
+    "img2pdf>=0.5.1",
     "python-dotenv>=1.2.1",
     "python-multipart>=0.0.22",
 ]

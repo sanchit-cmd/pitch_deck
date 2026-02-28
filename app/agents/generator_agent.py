@@ -19,9 +19,17 @@ def image_generator_agent(state: DeckState) -> DeckState:
     if not state.get("slide_prompt"):
         raise ValueError("Slide prompts are not defined in the state.")
 
-    # Prepare directory
-    image_dir = Path("./slides_images/")
-    image_dir.mkdir(exist_ok=True)
+    # Get job_id from thread config, fallback to arbitrary 'default'
+    from langchain_core.runnables.config import RunnableConfig
+    
+    # We need to extract the thread_id which we are using as job_id
+    # Since we can't easily inject config into the signature here currently without changing graph setup,
+    # we can pass job_id directly through the state
+    job_id = state.get("job_id", "default_job")
+
+    # Prepare isolated directory
+    image_dir = Path(f"./slides_images/{job_id}/")
+    image_dir.mkdir(parents=True, exist_ok=True)
 
     # Use the Nano Banana model ID
     model_id = "gemini-2.5-flash-image"
