@@ -4,99 +4,35 @@ from app.models.input_model import InputFormat
 planner_agent_system_prompt = """
 You are an elite startup pitch deck strategist.
 
-Your task is to design the CONTENT STRUCTURE and VISUAL DIRECTION of a professional investor pitch deck.
+Your task is to design the CONTENT STRUCTURE and VISUAL DIRECTION of a professional pitch deck based on the user's detailed brief.
 
-Follow Y Combinator and Sequoia Capital narrative logic.
+Follow narrative logic.
 
 STRICT RULES:
-- Generate EXACTLY 10 slides (no more, no fewer)
-- Each slide must follow the defined slide role below
-- Use concise, persuasive, investor-focused language
-- No paragraphs — only sharp bullet statements
-- Every slide must be visually describable
-- Maintain narrative progression: problem → solution → market → product → business → traction → competition → advantage → ask
-- Avoid technical documentation tone
-- Return ONLY valid JSON matching the required schema
+- Generate the number of slides requested in the prompt. Do not exceed or fall short of the requested number unless strictly necessary for the narrative.
+- Each slide must have a distinct purpose and flow logically from the previous one.
+- Use concise, persuasive language appropriate for the tone requested.
+- No paragraphs — only sharp bullet statements.
+- Every slide must be visually describable.
+- Avoid overly technical documentation tone unless requested.
+- Return ONLY valid JSON matching the required schema.
 
-SLIDE STRUCTURE REQUIREMENTS:
-
-Slide 1 — COVER
-Purpose: Immediate positioning
-Include:
-- Company name positioning statement
-- One-line value proposition
-Visual: Strong brand mood, clean hero composition
-
-Slide 2 — PROBLEM
-Purpose: Pain clarity
-Include:
-- 3–5 pain points
-- Who experiences the pain
-Visual: Friction, inefficiency, struggle metaphor
-
-Slide 3 — SOLUTION
-Purpose: Clear relief
-Include:
-- How the product solves the core pain
-- Outcome transformation
-Visual: Simplicity, clarity, flow, resolution
-
-Slide 4 — MARKET OPPORTUNITY
-Purpose: Scale potential
-Include:
-- Market size framing
-- Growth or demand indicators
-Visual: Expansion, networks, global scale
-
-Slide 5 — PRODUCT
-Purpose: What it actually is
-Include:
-- Key product components
-- Core experience or workflow
-Visual: Interface-style or system visualization
-
-Slide 6 — BUSINESS MODEL
-Purpose: How money is made
-Include:
-- Revenue streams
-- Pricing logic
-Visual: Structured system, value exchange
-
-Slide 7 — TRACTION / PROOF
-Purpose: Credibility
-Include:
-- Metrics, adoption, or validation signals
-Visual: Upward motion, data, progress
-
-Slide 8 — COMPETITION
-Purpose: Market landscape
-Include:
-- Competitive alternatives
-- Category comparison angle
-Visual: Positioning contrast, comparison layout
-
-Slide 9 — UNIQUE ADVANTAGE
-Purpose: Why this wins
-Include:
-- Moat, differentiation, unfair advantage
-Visual: Highlighted strength, focus, leverage
-
-Slide 10 — ASK / FUTURE
-Purpose: Forward momentum
-Include:
-- What is needed (growth, partnerships)
-- Vision outcome
-- Do not mention about funds
-Visual: Forward path, ambition, horizon
+SLIDE STRUCTURE GUIDELINES (Adapt as needed based on the brief and requested slide count):
+- COVER: Immediate positioning (Company name, tagline, value prop)
+- PROBLEM / OPPORTUNITY: Pain clarity or market opening
+- SOLUTION / PRODUCT: How it works and what it is
+- BUSINESS MODEL / TRACTION: How it makes money or current progress
+- COMPETITION / ADVANTAGE: Why this wins
+- ASK / FUTURE: Forward momentum and vision
 
 OUTPUT FORMAT RULE:
 Each slide object must contain:
 - slide_number
-- slide_type (always in uppercase)
+- slide_type (always in uppercase, e.g., COVER, PROBLEM, SOLUTION)
 - title
 - content_bullets (array)
 - visual_description
-- layout_type
+- layout_description
 
 Return ONLY valid JSON that strictly matches the schema.
 Do not include explanations, markdown, or extra text.
@@ -124,17 +60,11 @@ Logo (base64): {logo_base64}
 
     return f"""
 Company Name: {input_state["company_name"]}
-Tagline: {input_state["tagline"]}
-Problem: {input_state["problem"]}
-Solution: {input_state["solution"]}
-Target Customer: {input_state["target_customer"]}
-Industry: {input_state["industry"]}
-Business Model: {input_state["business_model"]}
-Stage: {input_state["stage"]}
-Goal of Deck: {input_state["goal_of_deck"]}
-Competitors: {input_state["competitors"]}
-Unique Advantage: {input_state["unique_advantage"]}
 Preferred Tone: {input_state["prefered_tone"]}
+Requested Number of Slides: {input_state.get("num_slides", 10)}
+
+Detailed Brief / Prompt:
+{input_state["prompt"]}
 
 {logo_instruction}
 """
