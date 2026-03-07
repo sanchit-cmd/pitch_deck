@@ -6,11 +6,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import os
 import base64
-from fastapi.staticfiles import StaticFiles
 
 # Setup React static files directory
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-FRONTEND_DIR = os.path.join(BASE_DIR, "frontend", "out")
 
 from app.models.input_model import InputFormat
 from app.prompts.planner_prompt import generate_planner_agent_prompt
@@ -41,6 +39,7 @@ app.add_middleware(
 
 
 class JobRequest(BaseModel):
+    user_id: Optional[str] = None
     company_name: str
     prompt: str
     num_slides: Optional[int] = 10
@@ -116,6 +115,7 @@ def create_job(request: JobRequest, background_tasks: BackgroundTasks, db: Sessi
     
     new_job = Job(
         id=job_id,
+        user_id=request.user_id,
         company_name=request.company_name,
         prompt=request.prompt,
         num_slides=request.num_slides,
@@ -165,6 +165,30 @@ def get_job_details(job_id: str, db: Session = Depends(get_db)):
         "download_url": f"/api/v1/jobs/{job_id}/download",
         "slides": result_state.get("slide_images", [])
     }
+
+
+@app.get("/api/v1/users/{user_id}/jobs")
+def get_user_jobs(user_id: str, db: Session = Depends(get_db)):
+    jobs = db.query(Job).filter(Job.user_id == user_id).order_by(Job.created_at.desc()).all()
+    
+    response = []
+    for job in jobs:
+        job_data = {
+            "job_id": job.id,
+            "company_name": job.company_name,
+            "prompt": job.prompt,
+            "status": job.status,
+            "created_at": job.created_at,
+            "updated_at": job.updated_at,
+        }
+        if job.status == "completed":
+            job_data["download_url"] = f"/api/v1/jobs/{job.id}/download"
+        if job.status == "failed":
+            job_data["error"] = job.error
+            
+        response.append(job_data)
+        
+    return response
 
 
 def cleanup_job(job_id: str, pdf_path: str):
@@ -282,41 +306,4 @@ def regenerate_slide(job_id: str, slide_number: int, request: RegenerateRequest,
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# --- Serve Frontend Assets ---
-
-# Mount the static _next assets and files explicitly
-if os.path.exists(FRONTEND_DIR):
-    app.mount("/_next", StaticFiles(directory=os.path.join(FRONTEND_DIR, "_next")), name="next_assets")
-    
-    # Needs to serve images that were put in slides_images directly at root paths if Next expects it, but we can do it manually:
-    app.mount("/slides_images", StaticFiles(directory=os.path.join(BASE_DIR, "slides_images")), name="slides_images")
-
-    @app.get("/{full_path:path}")
-    async def serve_frontend(full_path: str):
-        # Serve exact file if it exists, otherwise fallback to React index.html for CSR
-        requested_path = os.path.join(FRONTEND_DIR, full_path)
-        
-        # If the path points to an existing file, return it
-        if os.path.isfile(requested_path):
-            return FileResponse(requested_path)
-            
-        # If it's a directory, next.js might have an index.html or index.txt inside it
-        if os.path.isdir(requested_path):
-            # If the request specifically expects text/x-component (RSC), return .txt
-            index_txt = os.path.join(requested_path, "index.txt")
-            if os.path.isfile(index_txt) and full_path.endswith('.txt'):
-                return FileResponse(index_txt)
-                
-            index_file = os.path.join(requested_path, "index.html")
-            if os.path.isfile(index_file):
-                return FileResponse(index_file)
-            
-        # Check if there's a specific .html or .txt file for this path (next export behavior)
-        if os.path.isfile(requested_path + ".html"):
-            return FileResponse(requested_path + ".html")
-            
-        if os.path.isfile(requested_path + ".txt"):
-            return FileResponse(requested_path + ".txt")
-            
-        # Otherwise, assume it's a client side route and serve the root generic index
-        return FileResponse(os.path.join(FRONTEND_DIR, "index.html"))
+# --- end of API ---

@@ -6,6 +6,7 @@ class Job(Base):
     __tablename__ = "jobs"
 
     id = Column(String, primary_key=True, index=True)
+    user_id = Column(String, index=True, nullable=True) # Added for Clerk authentication tracking
     company_name = Column(String, index=True)
     prompt = Column(Text)
     num_slides = Column(Integer)
