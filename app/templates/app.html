@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - DeckGen{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full relative">
+
+    <!-- Decorative blobs -->
+    <div class="absolute top-0 left-10 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob pointer-events-none"></div>
+    <div class="absolute top-0 right-10 w-72 h-72 bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000 pointer-events-none"></div>
+    <div class="absolute -bottom-8 left-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000 pointer-events-none"></div>
+
+    <div class="relative z-10">
+        <h1 class="text-3xl font-bold text-gray-900 mb-8">Create a New Pitch Deck</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Form Card -->
+            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden border border-white/20 p-8">
+                <!-- We will post to a new HTMX endpoint that kicks off the job and returns a partial -->
+                <form hx-post="/htmx/jobs" hx-encoding="multipart/form-data" hx-target="#job-status-container" hx-swap="outerHTML" hx-indicator="#loading-indicator" class="space-y-6">
+                    
+                    <div>
+                        <label for="company_name" class="block text-sm font-medium text-gray-700">Company Name</label>
+                        <div class="mt-1">
+                            <input type="text" name="company_name" id="company_name" required class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-lg px-4 py-3 bg-white/50 border outline-none transition-all">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="prompt" class="block text-sm font-medium text-gray-700">Business Idea / Prompt</label>
+                        <div class="mt-1">
+                            <textarea id="prompt" name="prompt" rows="4" required class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-lg px-4 py-3 bg-white/50 border outline-none transition-all" placeholder="E.g. We are building an AI agent that automates customer support for e-commerce companies..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="num_slides" class="block text-sm font-medium text-gray-700">Number of Slides</label>
+                            <div class="mt-1">
+                                <input type="number" name="num_slides" id="num_slides" value="10" min="5" max="25" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-lg px-4 py-3 bg-white/50 border outline-none transition-all">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="prefered_tone" class="block text-sm font-medium text-gray-700">Design Tone</label>
+                            <div class="mt-1">
+                                <select id="prefered_tone" name="prefered_tone" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-lg px-4 py-3 bg-white/50 border outline-none transition-all">
+                                    <option value="BOLD">Bold & Dynamic</option>
+                                    <option value="MINIMAL">Minimal & Clean</option>
+                                    <option value="CORPORATE">Corporate & Professional</option>
+                                    <option value="FUN">Fun & Playful</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="logo_file" class="block text-sm font-medium text-gray-700">Logo (Optional)</label>
+                        <div class="mt-1 flex items-center">
+                            <input type="file" name="logo_file" id="logo_file" accept="image/png, image/jpeg, image/svg+xml" class="block w-full text-sm text-gray-500 file:mr-4 file:py-3 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 transition-all cursor-pointer bg-white/50 rounded-lg border border-gray-300">
+                        </div>
+                    </div>
+
+                    <div class="pt-4">
+                        <button type="submit" class="w-full flex justify-center py-4 px-4 border border-transparent rounded-lg shadow-md text-base font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transform transition-all active:scale-95">
+                            Generate Pitch Deck
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Status / Result Panel -->
+            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden border border-white/20 p-8 flex flex-col justify-center items-center min-h-[400px]">
+                
+                <div id="job-status-container" class="w-full h-full flex flex-col items-center justify-center text-center">
+                    <div class="text-gray-400">
+                        <svg class="mx-auto h-16 w-16 mb-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <p class="text-lg">Fill out the form to generate your deck!</p>
+                        <p class="text-sm mt-2">Your results will appear here.</p>
+                    </div>
+                </div>
+
+                <!-- Loading Indicator Wrapper -->
+                <div id="loading-indicator" class="htmx-indicator hidden absolute inset-0 bg-white/80 backdrop-blur-sm z-50 flex-col items-center justify-center">
+                    <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-indigo-600 mb-4"></div>
+                    <p class="text-indigo-900 font-medium animate-pulse">Initializing Agentic Pipeline...</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* HTMX Indicator styles */
+    .htmx-indicator.hidden {
+        display: none !important;
+    }
+    .htmx-indicator {
+        display: none;
+    }
+    .htmx-request .htmx-indicator {
+        display: flex;
+    }
+    .htmx-request.htmx-indicator {
+        display: flex;
+    }
+</style>
+{% endblock %}
