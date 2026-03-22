@@ -15,11 +15,21 @@ def planner_agent(state: DeckState) -> DeckState:
         response_format=SlidePlan,
     )
 
+    human_content = [{"type": "text", "text": state["raw_prompt"]}]
+    
+    if state.get("logo"):
+        mime_type = state["logo"]["mime_type"]
+        base64_data = state["logo"]["data"]
+        human_content.append({
+            "type": "image_url",
+            "image_url": {"url": f"data:{mime_type};base64,{base64_data}"}
+        })
+
     response = agent.invoke(
         {
             "messages": [
                 {"role": "system", "content": planner_agent_system_prompt},
-                {"role": "human", "content": state["raw_prompt"]},
+                {"role": "human", "content": human_content},
             ]
         }
     )

@@ -45,9 +45,9 @@ def generate_planner_agent_prompt(
 ) -> str:
     logo_instruction = ""
     if logo_base64:
-        logo_instruction = f"""
+        logo_instruction = """
 LOGO PROVIDED:
-A base64 encoded logo image is provided. Analyze this logo to determine:
+An image of the company logo is attached. Analyze this logo to determine:
 - Primary colors in the logo
 - Visual style (modern, minimal, bold, playful, corporate, etc.)
 - Design language and aesthetic
@@ -55,7 +55,6 @@ A base64 encoded logo image is provided. Analyze this logo to determine:
 - Brand personality
 
 Use these logo insights to inform your color_palette, visual_mood, and overall_style recommendations.
-Logo (base64): {logo_base64}
 """
 
     return f"""

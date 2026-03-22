@@ -13,7 +13,8 @@ Design Principles:
 - Premium, minimal, clean layout
 - Strong readability and contrast
 - Structured alignment and spacing
-- Controlled color usage from brand palette
+- EXTREME CONSISTENCY: You MUST maintain strict visual consistency across executions. Use the EXACT same artistic style, recurring visual motifs, scaling, layout patterns, and font formatting implied by the global brand style to ensure this slide perfectly matches others in the deck.
+- Controlled color usage strictly from the assigned brand palette
 
 Text Rules:
 - Titles must be bold, short, and highly readable

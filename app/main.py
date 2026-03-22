@@ -1,6 +1,7 @@
 import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app.database import engine, Base
 from app.routes import pages, auth_routes, job_htmx, job_api, user_api, billing
@@ -20,6 +21,9 @@ app.add_middleware(
 )
 
 # Include Routers
+# Mount slide images directory for the Editor
+app.mount("/slides_images", StaticFiles(directory="slides_images"), name="slides_images")
+
 # Frontend Pages
 app.include_router(pages.router)
 

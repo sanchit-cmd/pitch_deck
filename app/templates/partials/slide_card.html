@@ -1,0 +1,111 @@
+<div id="slide-card-{{ slide.slide_number }}" x-data="{ isEditing: false, isZoomed: false }" class="glass-card rounded-[2rem] overflow-hidden border border-gray-200/50 dark:border-gray-800/50 shadow-md group relative h-full flex flex-col pt-0">
+    <!-- Slide Preview -->
+    <div class="relative pt-[56.25%] w-full bg-gray-100 dark:bg-gray-900 overflow-hidden cursor-pointer" @click="isZoomed = true">
+        {% if slide.image_path %}
+            <img src="{{ slide.image_path }}?t={{ range(1, 100000) | random }}" alt="Slide {{ slide.slide_number }}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
+        {% else %}
+            <!-- HTMX Swap Loading State if Regenerating -->
+            <div class="absolute inset-0 w-full h-full flex flex-col items-center justify-center bg-gray-900/90 backdrop-blur-md z-10 text-white animate-pulse">
+                <svg class="w-8 h-8 animate-spin text-brand-500 mb-3" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                <p class="font-bold text-sm text-brand-400">Regenerating Design...</p>
+            </div>
+        {% endif %}
+        
+        <!-- Hover Overlay -->
+        <div class="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6 pointer-events-none">
+            <!-- Edit Button triggers Alpine Modal natively inside this card -->
+            <button type="button" @click.stop="isEditing = true" class="w-full py-3 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-md text-white font-bold text-sm flex items-center justify-center transition-colors border border-white/20 pointer-events-auto shadow-lg">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                Edit & Regenerate
+            </button>
+        </div>
+    </div>
+    
+    <!-- Info Footer -->
+    <div class="p-6 bg-white dark:bg-gray-800/80 flex flex-col flex-grow">
+        <div class="flex items-center justify-between mb-3">
+            <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-brand-100 text-brand-700 dark:bg-brand-900/50 dark:text-brand-400 font-display font-bold text-sm ring-4 ring-white dark:ring-gray-900">
+                {{ slide.slide_number }}
+            </span>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-md">{{ slide.slide_type }}</span>
+        </div>
+        <h3 class="text-base font-bold text-gray-900 dark:text-white line-clamp-2 leading-tight">
+            {{ slide.title }}
+        </h3>
+    </div>
+
+    <!-- Edit Slide Modal Base -->
+    <div x-show="isEditing" style="display: none;" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <!-- Modal Backdrop -->
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div x-show="isEditing" x-transition.opacity class="fixed inset-0 bg-gray-900/75 backdrop-blur-sm transition-opacity" @click="isEditing = false" aria-hidden="true"></div>
+            
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            
+            <!-- Modal Panel -->
+            <div x-show="isEditing" x-transition:enter="ease-out duration-300 transform" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" class="inline-block align-bottom bg-white dark:bg-gray-900 rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle w-full max-w-2xl border border-gray-200 dark:border-gray-800 relative z-50">
+                <div class="px-6 py-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-white dark:bg-gray-900">
+                    <div>
+                        <h3 class="text-xl font-display font-bold text-gray-900 dark:text-white">Editing Slide {{ slide.slide_number }}</h3>
+                        <p class="text-sm font-medium text-brand-600 dark:text-brand-400">{{ slide.slide_type }}</p>
+                    </div>
+                    <button type="button" @click="isEditing = false" class="bg-gray-100 dark:bg-gray-800 rounded-full p-2 text-gray-400 hover:text-gray-500 focus:outline-none transition-colors">
+                        <span class="sr-only">Close</span>
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                </div>
+
+                <!-- Hardcoded HTMX Form mapped perfectly to this loop cycle -->
+                <form hx-post="/htmx/jobs/{{ job.id }}/slide/{{ slide.slide_number }}/regenerate" hx-target="#slide-card-{{ slide.slide_number }}" hx-swap="outerHTML" class="px-6 py-5 space-y-5" @submit="isEditing = false">
+                    
+                    <div>
+                        <label for="title_{{ slide.slide_number }}" class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Slide Title</label>
+                        <input type="text" name="title" id="title_{{ slide.slide_number }}" required value="{{ slide.title }}" class="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors font-medium text-gray-900 dark:text-white">
+                    </div>
+                    
+                    <div>
+                        <label for="content_bullets_{{ slide.slide_number }}" class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Slide Content (Bullets)</label>
+                        <textarea name="content_bullets" id="content_bullets_{{ slide.slide_number }}" rows="4" required class="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors text-sm font-medium text-gray-900 dark:text-white whitespace-pre-wrap">{{ slide.content_bullets }}</textarea>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="visual_description_{{ slide.slide_number }}" class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Visual Directive</label>
+                            <textarea name="visual_description" id="visual_description_{{ slide.slide_number }}" rows="3" class="block w-full px-4 py-2 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors text-xs font-medium text-gray-900 dark:text-white whitespace-pre-wrap">{{ slide.visual_description }}</textarea>
+                        </div>
+                        <div>
+                            <label for="layout_description_{{ slide.slide_number }}" class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Layout Blueprint</label>
+                            <textarea name="layout_description" id="layout_description_{{ slide.slide_number }}" rows="3" class="block w-full px-4 py-2 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors text-xs font-medium text-gray-900 dark:text-white whitespace-pre-wrap">{{ slide.layout_description }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 flex gap-3 border border-blue-100 dark:border-blue-900/50">
+                        <svg class="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <p class="text-xs font-medium text-blue-800 dark:text-blue-300 leading-relaxed">
+                            Regenerating this slide will invoke the AI agent exclusively for this image while keeping the exact same global aesthetic preferences. This action takes ~5-10 seconds.
+                        </p>
+                    </div>
+
+                    <div class="px-6 py-4 border-t border-gray-100 dark:border-gray-800 flex justify-end gap-3 -mx-6 -mb-5 bg-gray-50 dark:bg-gray-900/50 mt-6">
+                        <button type="button" @click="isEditing = false" class="px-5 py-2.5 rounded-xl text-sm font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors focus:outline-none">
+                            Cancel
+                        </button>
+                        <button type="submit" class="flex justify-center items-center px-6 py-2.5 rounded-xl shadow-md text-sm font-bold text-white bg-gray-900 hover:bg-black dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100 transition-all focus:outline-none">
+                            Regenerate Slide
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Zoom/Lightbox Modal -->
+    <div x-show="isZoomed" style="display: none;" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-md p-4 sm:p-8" @keydown.escape.window="isZoomed = false">
+        <div class="relative w-full h-full max-w-7xl mx-auto flex items-center justify-center">
+            <button type="button" class="absolute top-4 right-4 z-[110] text-gray-400 hover:text-white transition-colors bg-white/10 hover:bg-white/20 rounded-full p-2 backdrop-blur-sm" @click="isZoomed = false">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <img src="{{ slide.image_path }}" class="max-w-full max-h-full object-contain shadow-2xl rounded-sm" @click.stop x-show="isZoomed" x-transition:enter="ease-out duration-300 transform scale-95 opacity-0" x-transition:enter-end="scale-100 opacity-100">
+        </div>
+    </div>
+</div>
