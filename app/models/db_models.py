@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, Text, DateTime, JSON, ForeignKey
+from sqlalchemy import Column, String, Integer, Text, DateTime, JSON, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from app.database import Base
 from datetime import datetime, timezone
@@ -7,11 +7,16 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(String, primary_key=True, index=True)
+    username = Column(String, unique=True, index=True, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
+    is_verified = Column(Boolean, default=False)
+    otp_secret = Column(String, nullable=True) # stores the latest OTP
+    credits = Column(Integer, default=5) # Default free tier credits
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     jobs = relationship("Job", back_populates="user")
+    transactions = relationship("Transaction", back_populates="user")
 
 
 class Job(Base):
@@ -34,6 +39,29 @@ class Job(Base):
     
     # Path to the completed pdf path
     pdf_path = Column(String, nullable=True)
+    
+    # Flag to prevent multiple credit deductions
+    is_downloaded = Column(Boolean, default=False)
 
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+
+class Transaction(Base):
+    __tablename__ = "transactions"
+
+    id = Column(String, primary_key=True, index=True)
+    user_id = Column(String, ForeignKey("users.id"), index=True, nullable=False)
+    user = relationship("User", back_populates="transactions")
+    
+    amount = Column(Integer, nullable=False) # In smallest currency unit e.g., paise
+    credits_added = Column(Integer, nullable=False)
+    
+    razorpay_order_id = Column(String, unique=True, index=True, nullable=False)
+    razorpay_payment_id = Column(String, nullable=True)
+    razorpay_signature = Column(String, nullable=True)
+    
+    status = Column(String, default="created", index=True) # created, paid, failed
+    
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+

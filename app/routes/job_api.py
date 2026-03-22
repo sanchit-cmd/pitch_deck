@@ -11,6 +11,8 @@ from app.schemas.job import JobRequest, RegenerateRequest
 from app.services.job_service import process_pitch_deck, cleanup_job
 from app.agents.generator_agent import generate_single_image
 from app.agents.pdf_agent import pdf_generator
+from app.models.db_models import User
+from app.auth import get_current_user
 
 router = APIRouter(prefix="/api/v1/jobs", tags=["api-jobs"])
 
@@ -36,9 +38,9 @@ def create_job(request: JobRequest, background_tasks: BackgroundTasks, db: Sessi
 
 
 @router.get("/{job_id}")
-def get_job_status(job_id: str, db: Session = Depends(get_db)):
+def get_job_status(job_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     job = db.query(Job).filter(Job.id == job_id).first()
-    if not job:
+    if not job or job.user_id != user.id:
         raise HTTPException(status_code=404, detail="Job not found")
 
     response = {"status": job.status}
@@ -53,9 +55,9 @@ def get_job_status(job_id: str, db: Session = Depends(get_db)):
 
 
 @router.get("/{job_id}/details")
-def get_job_details(job_id: str, db: Session = Depends(get_db)):
+def get_job_details(job_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     job = db.query(Job).filter(Job.id == job_id).first()
-    if not job:
+    if not job or job.user_id != user.id:
         raise HTTPException(status_code=404, detail="Job not found")
         
     if job.status != "completed":
@@ -71,9 +73,9 @@ def get_job_details(job_id: str, db: Session = Depends(get_db)):
 
 
 @router.get("/{job_id}/download")
-def download_pdf(job_id: str, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+def download_pdf(job_id: str, background_tasks: BackgroundTasks, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     job = db.query(Job).filter(Job.id == job_id).first()
-    if not job:
+    if not job or job.user_id != user.id:
         raise HTTPException(status_code=404, detail="Job not found")
 
     if job.status != "completed":
@@ -82,6 +84,14 @@ def download_pdf(job_id: str, background_tasks: BackgroundTasks, db: Session = D
     pdf_path = job.pdf_path
     if not pdf_path:
         raise HTTPException(status_code=404, detail="PDF generation failed or missing")
+        
+    if not job.is_downloaded:
+        if user.credits < 1:
+            raise HTTPException(status_code=402, detail="Insufficient credits to download this presentation")
+        
+        user.credits -= 1
+        job.is_downloaded = True
+        db.commit()
 
     # Schedule cleanup to run AFTER the response has been successfully sent
     background_tasks.add_task(cleanup_job, job_id, pdf_path)

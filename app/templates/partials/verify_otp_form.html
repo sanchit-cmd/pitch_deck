@@ -1,0 +1,35 @@
+<form hx-post="/auth/verify-otp" hx-target="#otp-error-message" hx-swap="outerHTML" class="space-y-6 animate-fade-in">
+    <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-brand-100 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 mb-4">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+        </div>
+        <h3 class="text-2xl font-display font-bold text-gray-900 dark:text-white">Verify Email</h3>
+        <p class="text-gray-500 dark:text-gray-400 text-sm mt-2 font-medium leading-relaxed">We sent a 6-digit secure code to your email.<br>Please enter it below to continue.</p>
+    </div>
+                
+    <div id="otp-error-message"></div>
+
+    <input type="hidden" name="email" value="{{ email }}">
+
+    <div class="space-y-4">
+        <div>
+            <label for="otp" class="sr-only">6-Digit OTP</label>
+            <div class="mt-1">
+                <input id="otp" name="otp" type="text" maxlength="6" pattern="\d{6}" required placeholder="••••••" class="appearance-none block w-full px-4 py-4 bg-white/50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl shadow-[inset_0_2px_4px_rgba(0,0,0,0.06)] placeholder-gray-300 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all text-center tracking-[1em] sm:tracking-[1.5em] text-3xl font-display font-bold text-gray-900 dark:text-white">
+            </div>
+        </div>
+    </div>
+
+    <div class="pt-4">
+        <button type="submit" class="w-full flex items-center justify-center py-3.5 px-4 rounded-xl shadow-[0_0_15px_rgba(79,70,229,0.3)] text-sm font-bold text-white bg-gradient-to-r from-brand-600 to-indigo-500 hover:to-indigo-400 hover:from-brand-500 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 transform transition-all active:scale-[0.98]">
+            Verify & Continue
+        </button>
+    </div>
+
+    <div class="text-sm text-center pt-2">
+        <span class="text-gray-500 dark:text-gray-400 font-medium">Entered the wrong email?</span>
+        <button type="button" hx-get="/auth/login-form" hx-target="#auth-container" hx-swap="innerHTML" class="font-bold text-brand-600 dark:text-brand-400 hover:text-brand-500 transition-colors ml-1 focus:outline-none">
+            Back to Sign in
+        </button>
+    </div>
+</form>

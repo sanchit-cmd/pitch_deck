@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import engine, Base
-from app.routes import pages, auth_routes, job_htmx, job_api, user_api
+from app.routes import pages, auth_routes, job_htmx, job_api, user_api, billing
 
 # Create database tables if they do not exist
 Base.metadata.create_all(bind=engine)
@@ -32,3 +32,6 @@ app.include_router(job_htmx.router)
 # Core API Routes
 app.include_router(job_api.router)
 app.include_router(user_api.router)
+
+# Billing Routes
+app.include_router(billing.router)

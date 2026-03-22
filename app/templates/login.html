@@ -1,59 +1,32 @@
 {% extends "base.html" %}
 
-{% block title %}Login - DeckGen{% endblock %}
+{% block title %}Sign In - DeckGen{% endblock %}
 
 {% block content %}
-<div class="flex-grow flex items-center justify-center p-6 bg-[url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop')] bg-cover bg-center">
+<!-- Use a highly styled background exclusively for auth -->
+<div class="flex-grow flex items-center justify-center p-6 relative overflow-hidden -mt-20"> <!-- -mt-20 offsets the navbar height to center nicely -->
     
-    <!-- Dark overlay to ensure contrast over the background image -->
-    <div class="absolute inset-0 bg-slate-900/60 z-0"></div>
-
-    <div class="w-full max-w-md p-8 space-y-8 rounded-2xl dark-glass shadow-2xl z-10 text-white relative overflow-hidden">
-        <!-- Decorative blur blob -->
-        <div class="absolute -top-10 -right-10 w-32 h-32 bg-indigo-500 rounded-full mix-blend-multiply filter blur-2xl opacity-50 animate-blob"></div>
-
+    <!-- Immersive Background Orbs -->
+    <div class="absolute top-1/2 left-1/4 w-96 h-96 bg-brand-500 rounded-full mix-blend-multiply filter blur-[120px] opacity-40 animate-blob transform -translate-x-1/2 -translate-y-1/2"></div>
+    <div class="absolute top-1/3 right-1/4 w-96 h-96 bg-pink-500 rounded-full mix-blend-multiply filter blur-[120px] opacity-40 animate-blob animation-delay-2000 transform translate-x-1/2 -translate-y-1/2"></div>
+    
+    <div class="w-full max-w-md space-y-8 rounded-3xl glass-card border border-white/50 dark:border-gray-700/50 shadow-[0_0_50px_rgba(79,70,229,0.15)] z-10 text-gray-900 dark:text-white relative p-8 sm:p-10">
+        
+        <!-- Header Text -->
         <div class="text-center">
-            <h2 class="text-3xl font-extrabold tracking-tight">Welcome back</h2>
-            <p class="mt-2 text-sm text-indigo-200">Sign in to your account or register</p>
+            <div class="mx-auto w-12 h-12 rounded-xl bg-gradient-to-br from-brand-500 to-pink-500 flex items-center justify-center text-white font-display font-bold text-2xl shadow-lg mb-6">
+                D
+            </div>
+            <h2 class="text-3xl font-display font-extrabold tracking-tight">Welcome back</h2>
+            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400 font-medium">Log in to your account or register a new one to start creating.</p>
         </div>
 
-        <!-- The HTMX target container for forms/errors -->
+        <!-- HTMX target container for form swapping -->
         <div id="auth-container">
-            <!-- Default to Login Form -->
-            <form hx-post="/auth/login" hx-target="#login-error-message" hx-swap="outerHTML" class="space-y-6">
-                
-                <div id="login-error-message"></div>
-
-                <div class="space-y-4">
-                    <div>
-                        <label for="email" class="block text-sm font-medium text-gray-200">Email address</label>
-                        <div class="mt-1">
-                            <input id="email" name="email" type="email" autocomplete="email" required class="appearance-none block w-full px-4 py-3 border border-gray-600 rounded-lg shadow-sm placeholder-gray-400 bg-gray-800/50 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all sm:text-sm">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label for="password" class="block text-sm font-medium text-gray-200">Password</label>
-                        <div class="mt-1">
-                            <input id="password" name="password" type="password" autocomplete="current-password" required class="appearance-none block w-full px-4 py-3 border border-gray-600 rounded-lg shadow-sm placeholder-gray-400 bg-gray-800/50 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all sm:text-sm">
-                        </div>
-                    </div>
-                </div>
-
-                <div>
-                    <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-transform active:scale-95">
-                        Sign in
-                    </button>
-                </div>
-
-                <div class="text-sm text-center">
-                    <span class="text-gray-400">Don't have an account?</span>
-                    <button type="button" hx-get="/auth/register-form" hx-target="#auth-container" hx-swap="innerHTML" class="font-medium text-indigo-400 hover:text-indigo-300 transition-colors ml-1 focus:outline-none">
-                        Register here
-                    </button>
-                </div>
-            </form>
+            <!-- Included by default: login form -->
+            {% include "partials/login_form.html" %}
         </div>
+        
     </div>
 </div>
 {% endblock %}

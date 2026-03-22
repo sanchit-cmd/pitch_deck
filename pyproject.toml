@@ -16,4 +16,5 @@ dependencies = [
     "sqlalchemy>=2.0.48",
     "python-jose[cryptography]>=3.5.0",
     "bcrypt>=5.0.0",
+    "razorpay>=2.0.1",
 ]

@@ -51,12 +51,17 @@ def get_current_user_optional(request: Request, db: Session = Depends(get_db)) -
         return None
 
 def get_current_user(request: Request, db: Session = Depends(get_db)) -> User:
-    """Requires authentication. Redirects to login if not authenticated or returns 401."""
+    """Requires authentication and verification. Redirects to login if not authenticated or returns 401."""
     user = get_current_user_optional(request, db)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Not authenticated",
             headers={"WWW-Authenticate": "Bearer"},
+        )
+    if not user.is_verified:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Email not verified",
         )
     return user

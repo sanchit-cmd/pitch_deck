@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+
+{% block title %}Pricing - DeckGen{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 w-full animate-slide-up relative">
+
+    <div class="text-center max-w-3xl mx-auto mb-20 relative z-10">
+        <h1 class="text-4xl font-display font-extrabold text-gray-900 dark:text-white tracking-tight sm:text-6xl mb-6">
+            Scale your <span class="text-gradient">pitching power</span>
+        </h1>
+        <p class="text-xl text-gray-600 dark:text-gray-400 font-medium">Simple, transparent pricing. Buy credits to generate AI pitch decks. No hidden fees or subscriptions.</p>
+    </div>
+
+    <!-- Pricing Toggle Switch (Aesthetic Only) -->
+    <div class="flex justify-center mb-16 relative z-10">
+        <div class="glass dark:dark-glass rounded-full p-1.5 flex shadow-inner border border-gray-200/50 dark:border-white/10">
+            <button class="px-6 py-2 rounded-full bg-white dark:bg-gray-800 text-brand-600 dark:text-brand-400 font-semibold shadow-md text-sm transition-all focus:outline-none">Pay As You Go</button>
+            <button class="px-6 py-2 rounded-full text-gray-500 hover:text-gray-900 dark:hover:text-gray-200 font-medium text-sm transition-all focus:outline-none opacity-50 cursor-not-allowed" title="Coming soon">Subscriptions</button>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto relative z-10">
+        
+        <!-- Basic -->
+        <div class="glass-card rounded-3xl p-8 flex flex-col hover:shadow-[0_0_30px_rgba(99,102,241,0.15)] transition-all duration-300 relative border border-white/40 dark:border-gray-700 hover:-translate-y-2 group">
+            <div class="mb-4">
+                <span class="inline-block px-4 py-1.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-300 text-sm font-semibold tracking-wide border border-gray-200 dark:border-gray-700">BASIC</span>
+            </div>
+            <h3 class="text-2xl font-display font-bold text-gray-900 dark:text-white mb-2">Starter</h3>
+            <p class="text-gray-500 dark:text-gray-400 mb-8 font-medium">Perfect for trying out the agent.</p>
+            <div class="mb-8 flex items-baseline">
+                <span class="text-5xl font-display font-bold text-gray-900 dark:text-white tracking-tight">₹499</span>
+                <span class="text-gray-500 dark:text-gray-400 ml-2 font-medium">/ block</span>
+            </div>
+            <ul class="space-y-4 mb-10 flex-grow font-medium text-gray-600 dark:text-gray-300">
+                <li class="flex items-center">
+                    <svg class="h-6 w-6 text-brand-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    <strong>5 Credits</strong>
+                </li>
+                <li class="flex items-center">
+                    <svg class="h-6 w-6 text-brand-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    <span>Full UI Access</span>
+                </li>
+                <li class="flex items-center">
+                    <svg class="h-6 w-6 text-brand-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    <span>PDF Exports</span>
+                </li>
+            </ul>
+            <button onclick="checkout('basic')" class="w-full bg-white dark:bg-gray-800 border-2 border-brand-100 dark:border-brand-900/50 text-brand-600 dark:text-brand-400 hover:border-brand-500 hover:text-brand-700 focus:ring-4 focus:ring-brand-500/20 font-bold py-4 px-6 rounded-xl transition-all shadow-sm">
+                Get Started
+            </button>
+        </div>
+
+        <!-- Pro -->
+        <div class="rounded-3xl p-8 flex flex-col hover:shadow-[0_0_40px_rgba(236,72,153,0.3)] transition-all duration-300 relative border border-transparent bg-gradient-to-b from-brand-600 to-indigo-800 dark:from-brand-800 dark:to-indigo-950 md:-mt-8 md:mb-8 group shadow-xl">
+            <!-- Glow Effect behind -->
+            <div class="absolute -inset-0.5 bg-gradient-to-r from-pink-500 to-brand-500 rounded-[25px] blur opacity-30 group-hover:opacity-60 transition duration-500 -z-10"></div>
+            
+            <div class="absolute top-0 right-8 transform -translate-y-1/2">
+                <span class="inline-block bg-gradient-to-r from-pink-500 to-rose-500 text-white text-xs font-bold uppercase tracking-wider px-4 py-1.5 rounded-full shadow-lg">Most Popular</span>
+            </div>
+            
+            <div class="mb-4 mt-2 text-brand-200 text-sm font-semibold tracking-wide">RECOMMENDED</div>
+            <h3 class="text-2xl font-display font-bold text-white mb-2">Pro</h3>
+            <p class="text-brand-100 mb-8 font-medium opacity-90">For serial entrepreneurs and founders actively pitching to VCs.</p>
+            <div class="mb-8 flex items-baseline">
+                <span class="text-5xl font-display font-bold text-white tracking-tight">₹1,299</span>
+                <span class="text-brand-100 ml-2 font-medium opacity-90">/ block</span>
+            </div>
+            <ul class="space-y-4 mb-10 flex-grow font-medium text-white">
+                <li class="flex items-center">
+                    <svg class="h-6 w-6 text-pink-400 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    <strong>15 Credits (~₹86 each)</strong> <!-- Discount visualization -->
+                </li>
+                <li class="flex items-center">
+                    <svg class="h-6 w-6 text-pink-400 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    <span>Priority Generation Queue</span>
+                </li>
+                <li class="flex items-center">
+                    <svg class="h-6 w-6 text-pink-400 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    <span>Premium AI Models</span>
+                </li>
+            </ul>
+            <button onclick="checkout('pro')" class="w-full bg-white text-brand-700 hover:bg-gray-50 focus:ring-4 focus:ring-white/20 font-bold py-4 px-6 rounded-xl transition-all shadow-lg transform group-hover:-translate-y-1">
+                Buy Pro Block
+            </button>
+        </div>
+
+        <!-- Premium -->
+        <div class="glass-card rounded-3xl p-8 flex flex-col hover:shadow-[0_0_30px_rgba(236,72,153,0.15)] transition-all duration-300 relative border border-white/40 dark:border-gray-700 hover:-translate-y-2 group">
+            <div class="mb-4">
+                <span class="inline-block px-4 py-1.5 rounded-full bg-pink-50 dark:bg-pink-900/20 text-pink-700 dark:text-pink-300 text-sm font-semibold tracking-wide border border-pink-100 dark:border-pink-800">ENTERPRISE</span>
+            </div>
+            <h3 class="text-2xl font-display font-bold text-gray-900 dark:text-white mb-2">Agency</h3>
+            <p class="text-gray-500 dark:text-gray-400 mb-8 font-medium">For accelerators, venture studios, and heavy users.</p>
+            <div class="mb-8 flex items-baseline">
+                <span class="text-5xl font-display font-bold text-gray-900 dark:text-white tracking-tight">₹3,499</span>
+                <span class="text-gray-500 dark:text-gray-400 ml-2 font-medium">/ block</span>
+            </div>
+            <ul class="space-y-4 mb-10 flex-grow font-medium text-gray-600 dark:text-gray-300">
+                <li class="flex items-center">
+                    <svg class="h-6 w-6 text-pink-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    <strong>50 Credits (~₹69 each)</strong>
+                </li>
+                <li class="flex items-center">
+                    <svg class="h-6 w-6 text-pink-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    <span>API Access (Coming Soon)</span>
+                </li>
+                <li class="flex items-center">
+                    <svg class="h-6 w-6 text-pink-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    <span>24/7 Dedicated Support</span>
+                </li>
+            </ul>
+            <button onclick="checkout('premium')" class="w-full bg-gray-900 text-white dark:bg-white dark:text-gray-900 hover:bg-black dark:hover:bg-gray-100 border border-transparent focus:ring-4 focus:ring-gray-900/20 dark:focus:ring-white/20 font-bold py-4 px-6 rounded-xl transition-all shadow-md transform group-hover:-translate-y-1">
+                Buy Agency Block
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Razorpay Checkout Script -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    async function checkout(packageId) {
+        try {
+            // Loading state toggle could go here
+            
+            // 1. Create order on backend
+            const response = await fetch(`/billing/create-order?package_id=${packageId}`, {
+                method: 'POST'
+            });
+            if (!response.ok) throw new Error("Failed to create order");
+            const orderData = await response.json();
+
+            // 2. Open Razorpay Checkout
+            var options = {
+                "key": "{{ razorpay_key_id }}",
+                "amount": orderData.amount,
+                "currency": orderData.currency,
+                "name": "DeckGen AI",
+                "description": `Purchase ${packageId.toUpperCase()} block`,
+                "order_id": orderData.order_id,
+                "handler": async function (resp) {
+                    // 3. Verify Payment
+                    const verifyResponse = await fetch('/billing/verify-payment', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            razorpay_payment_id: resp.razorpay_payment_id,
+                            razorpay_order_id: resp.razorpay_order_id,
+                            razorpay_signature: resp.razorpay_signature
+                        })
+                    });
+                    
+                    if (verifyResponse.ok) {
+                        window.location.href = "/app";
+                    } else {
+                        alert("Payment verification failed. Please contact support immediately.");
+                    }
+                },
+                "prefill": {
+                    "name": orderData.prefill.name,
+                    "email": orderData.prefill.email,
+                },
+                "theme": {
+                    "color": "#4f46e5"
+                }
+            };
+            var rzp1 = new Razorpay(options);
+            
+            // Allow dummy checkout bypass
+            if ("{{ razorpay_key_id }}".includes("dummy") || "{{ razorpay_key_id }}".includes("test_")) {
+                console.warn("Using Razorpay Test/Dummy Mode. Simulating instant success.");
+                options.handler({
+                    razorpay_payment_id: "pay_dummy_" + Math.floor(Math.random() * 1000000),
+                    razorpay_order_id: orderData.order_id,
+                    razorpay_signature: "dummy_signature_xyz"
+                });
+                return;
+            }
+
+            rzp1.on('payment.failed', function (resp) {
+                console.error("Payment Failed", resp);
+                // Can integrate better toast notification here
+            });
+            rzp1.open();
+
+        } catch (err) {
+            console.error(err);
+            alert("Error initiating secure checkout. Please try again.");
+        }
+    }
+</script>
+{% endblock %}
